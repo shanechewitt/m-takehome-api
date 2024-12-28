@@ -4,5 +4,5 @@ class CustomerCreate(BaseModel):
     name: str
 
 class Customer(BaseModel):
-    id: str
+    id: int
     name: str
