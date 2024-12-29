@@ -20,6 +20,28 @@ class AccountService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Bank account creation failed: {e}")
 
+    @staticmethod
+    async def get_account_balance(account_number: str, routing_number: str) -> float:
+        try:
+            if not len(account_number) == 12 and account_number.isdigit():
+                raise HTTPException(status_code=400, detail="Invalid account number")
+            if not len(routing_number) == 9 and routing_number.isdigit():
+                raise HTTPException(status_code=400, detail="Invalid routing number")
+            
+            response = (supabase.table("BankAccounts")
+                        .select("balance")
+                        .eq("account_number", account_number)
+                        .eq("routing_number", routing_number)
+                        .execute())
+
+            if not response.data:
+                raise HTTPException(status_code=404, detail="Bank account not found")
+            return response.data[0]["balance"]
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Bank account balance GET failed: {e}")
+
     # Helpers
     @staticmethod
     def _generate_account_numbers() -> tuple[str, str]:

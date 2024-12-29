@@ -11,3 +11,7 @@ MOCK_ACCOUNT = {
     "account_number": "111111111111",
     "routing_number": "999999999"
 }
+
+MOCK_ACCOUNT_BALANCE = {
+    "balance": 100.00
+}

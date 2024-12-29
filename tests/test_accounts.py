@@ -3,7 +3,8 @@ from app.services.account_service import AccountService
 from app.models.account import AccountCreate
 from .mocks.response_mocks import *
 
-# Success Cases
+# Create Account
+## Success Cases
 def test_create_account_success(client, mock_supabase_account_success):
     # Arrange
     valid_params = {"customer_id": 1, "name": "Test Account", "initial_amount": 100.00}
@@ -30,7 +31,7 @@ def test_create_account_success(client, mock_supabase_account_success):
         mock_supabase_account_success.table.assert_called_once_with("BankAccounts")
         mock_supabase_account_success.table().insert.assert_called_once_with(acc_model_create_to_return)
 
-# Edge Cases - Validation
+## Edge Cases - Validation
 def test_create_account_error_empty_name(client):
     # Arrange
     empty_name_params = {
@@ -61,7 +62,7 @@ def test_create_account_error_negative_amount(client):
     assert response.is_error == True
     assert response_error["detail"] == "Bank account balance cannot be negative"
 
-# Database Errors
+## Database Errors
 def test_create_customer_error_database(client, mock_supabase_account_error):
     # Arrange
     valid_params = {"customer_id": 1, "name": "Test Account", "initial_amount": 100.00}
@@ -85,8 +86,67 @@ def test_create_customer_error_database(client, mock_supabase_account_error):
         mock_supabase_account_error.table.assert_called_once_with("BankAccounts")
         mock_supabase_account_error.table().insert.assert_called_once_with(acc_model_create_to_return)
 
+# Get balance
+## Success Cases
+def test_get_account_balance(client, mock_supabase_account_balance_get_success):
+    # Arrange
+    valid_account_number = "111111111111"
+    valid_routing_number = "999999999"
+    # Act
+    response = client.get(f"/api/accounts/get-balance/{valid_account_number}", params={"routing_number": valid_routing_number })
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == 100.00
+
+    mock_supabase_account_balance_get_success.table.assert_called_once_with("BankAccounts")
+    table = mock_supabase_account_balance_get_success.table.return_value
+    table.select.assert_called_once_with("balance")
+
+    table.select.return_value.eq.assert_called_once_with("account_number", "111111111111")
+    table.select.return_value.eq.return_value.eq.assert_called_once_with("routing_number", "999999999")
+
+## Edge Cases
+def test_get_account_balance_invalid_account_number(client):
+    # Arrange
+    invalid_account_number = "666666"
+    valid_routing_number = "999999999"
+    # Act
+    response = client.get(f"/api/accounts/get-balance/{invalid_account_number}", params={"routing_number": valid_routing_number})
+    # Assert
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid account number"
+
+def test_get_account_balance_invalid_routing_number(client):
+    # Arrange
+    valid_account_number = "111111111111"
+    invalid_routing_number = "7777777"
+    # Act
+    response = client.get(f"/api/accounts/get-balance/{valid_account_number}", params={"routing_number": invalid_routing_number})
+    # Assert
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid routing number"
+
+def test_get_account_balance_not_found(client, mock_supabase_account_balance_not_found_error):
+    # Arrange
+    valid_account_number = "111111111111"
+    valid_routing_number = "999999999"
+    # Act
+    response = client.get(f"/api/accounts/get-balance/{valid_account_number}", params={"routing_number": valid_routing_number })
+    # Assert
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Bank account not found"
+
+## Database Error
+def test_get_account_balance_error_database(client, mock_supabase_account_balance_get_error):
+    # Arrange
+    # Act
+    response = client.get("/api/accounts/get-balance/111111111111", params={"routing_number": "999999999" })
+    # Assert
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Bank account balance GET failed: Database error"
+
 # Helper Tests
-# Generate Account Numbers
+## Generate Account Numbers
 def test_generate_account_numbers(client):
     # Arrange
 
@@ -96,7 +156,7 @@ def test_generate_account_numbers(client):
     assert len(acc_num) == 12
     assert len(routing_num) == 9
 
-# Generate Account Model
+## Generate Account Model
 def test_generate_account_model(client):
     # Arrange
     account_create_params = {"customer_id": 1, "name": "Test Account", "initial_amount": 100.00}
