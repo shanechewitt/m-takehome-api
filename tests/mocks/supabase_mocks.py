@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from .response_mocks import MOCK_CUSTOMER
+from .response_mocks import *
 
 @pytest.fixture
 def mock_supabase_customer_success():
@@ -14,3 +14,15 @@ def mock_supabase_customer_error():
         mock.table.return_value.insert.return_value.execute.side_effect = Exception("Database error")
         yield mock
         
+
+@pytest.fixture
+def mock_supabase_account_success():
+    with patch('app.services.account_service.supabase') as mock:
+        mock.table.return_value.insert.return_value.execute.return_value.data = [MOCK_ACCOUNT]
+        yield mock
+
+@pytest.fixture
+def mock_supabase_account_error():
+    with patch('app.services.account_service.supabase') as mock:
+        mock.table.return_value.insert.return_value.execute.side_effect = Exception("Database error")
+        yield mock
