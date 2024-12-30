@@ -1,7 +1,9 @@
 from unittest.mock import patch
+from fastapi import HTTPException
 from app.services.account_service import AccountService
 from app.models.account import AccountCreate
 from .mocks.response_mocks import *
+import pytest
 
 # Create Account
 ## Success Cases
@@ -88,7 +90,7 @@ def test_create_customer_error_database(client, mock_supabase_account_error):
 
 # Get balance
 ## Success Cases
-def test_get_account_balance(client, mock_supabase_account_balance_get_success):
+def test_web_get_account_balance(client, mock_supabase_account_balance_get_success):
     # Arrange
     valid_account_number = "111111111111"
     valid_routing_number = "999999999"
@@ -102,11 +104,11 @@ def test_get_account_balance(client, mock_supabase_account_balance_get_success):
     table = mock_supabase_account_balance_get_success.table.return_value
     table.select.assert_called_once_with("balance")
 
-    table.select.return_value.eq.assert_called_once_with("account_number", "111111111111")
-    table.select.return_value.eq.return_value.eq.assert_called_once_with("routing_number", "999999999")
+    table.select.return_value.eq.assert_called_once_with("account_number", valid_account_number)
+    table.select.return_value.eq.return_value.eq.assert_called_once_with("routing_number", valid_routing_number)
 
 ## Edge Cases
-def test_get_account_balance_invalid_account_number(client):
+def test_web_get_account_balance_invalid_account_number(client):
     # Arrange
     invalid_account_number = "666666"
     valid_routing_number = "999999999"
@@ -116,7 +118,7 @@ def test_get_account_balance_invalid_account_number(client):
     assert response.status_code == 400
     assert response.json()["detail"] == "Invalid account number"
 
-def test_get_account_balance_invalid_routing_number(client):
+def test_web_get_account_balance_invalid_routing_number(client):
     # Arrange
     valid_account_number = "111111111111"
     invalid_routing_number = "7777777"
@@ -126,7 +128,7 @@ def test_get_account_balance_invalid_routing_number(client):
     assert response.status_code == 400
     assert response.json()["detail"] == "Invalid routing number"
 
-def test_get_account_balance_not_found(client, mock_supabase_account_balance_not_found_error):
+def test_web_get_account_balance_not_found(client, mock_supabase_account_balance_not_found_error):
     # Arrange
     valid_account_number = "111111111111"
     valid_routing_number = "999999999"
@@ -137,13 +139,105 @@ def test_get_account_balance_not_found(client, mock_supabase_account_balance_not
     assert response.json()["detail"] == "Bank account not found"
 
 ## Database Error
-def test_get_account_balance_error_database(client, mock_supabase_account_balance_get_error):
+def test_web_get_account_balance_error_database(client, mock_supabase_account_balance_get_error):
     # Arrange
     # Act
     response = client.get("/api/accounts/get-balance/111111111111", params={"routing_number": "999999999" })
     # Assert
     assert response.status_code == 500
     assert response.json()["detail"] == "Bank account balance GET failed: Database error"
+
+# Update balance
+# Success Case
+@pytest.mark.asyncio
+async def test_update_balance_success(client, mock_supabase_account_balance_update_success):
+    # Arrange
+    valid_account_number = "111111111111"
+    valid_routing_number = "999999999"
+    amount_change = -25
+    # AccountService.get_account_balance = lambda *args: 100.00
+    # Act
+    response = await AccountService.update_account_balance(valid_account_number, valid_routing_number, amount_change)
+    # Assert
+    assert response == 100 + amount_change
+
+    table = mock_supabase_account_balance_update_success.table.return_value
+    table.update.assert_called_once_with({"balance": response})
+    table.update.return_value.eq.assert_called_once_with("account_number", valid_account_number)
+    table.update.return_value.eq.return_value.eq.assert_called_once_with("routing_number", valid_routing_number)
+
+# Error Case
+@pytest.mark.asyncio
+async def test_update_balance_error(client, mock_supabase_account_balance_update_error):
+    # Arrange
+    valid_account_number = "111111111111"
+    valid_routing_number = "999999999"
+    amount_change = -25
+    # Act
+    with pytest.raises(HTTPException) as info:
+        await AccountService.update_account_balance(valid_account_number, valid_routing_number, amount_change)
+
+    # Assert
+    assert info.value.status_code == 500
+    assert info.value.detail == "Failed to update account balance: Database error"
+
+# Non-Web Data Access
+@pytest.mark.asyncio
+async def test_nonweb_get_account_balance_success(mock_supabase_account_balance_get_success):
+    # Arrange
+    valid_account_number = "111111111111"
+    valid_routing_number = "999999999"
+    # Act
+    balance = await AccountService.get_account_balance_internal(valid_account_number, valid_routing_number)
+    # Assert
+    assert balance == 100.00
+
+@pytest.mark.asyncio
+async def test_nonweb_get_account_balance_invalid_account_number_length(mock_supabase_account_balance_get_success):
+    # Arrange
+    invalid_account_number = "7"
+    valid_routing_number = "999999999"
+    # Act
+    balance = await AccountService.get_account_balance_internal(invalid_account_number, valid_routing_number)
+    # Assert
+    assert balance == None
+    mock_supabase_account_balance_get_success.assert_not_called()
+
+@pytest.mark.asyncio
+async def test_nonweb_get_account_balance_invalid_account_number_nondigit(mock_supabase_account_balance_get_success):
+    # Arrange
+    invalid_account_number = "abababababab"
+    valid_routing_number = "999999999"
+    # Act
+    balance = await AccountService.get_account_balance_internal(invalid_account_number, valid_routing_number)
+    # Assert
+    assert balance == None
+    mock_supabase_account_balance_get_success.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_nonweb_get_account_balance_invalid_router_number_length(mock_supabase_account_balance_get_success):
+    # Arrange
+    valid_account_number = "111111111111"
+    invalid_routing_number = "99"
+    # Act
+    balance = await AccountService.get_account_balance_internal(valid_account_number, invalid_routing_number)
+    # Assert
+    assert balance == None
+    mock_supabase_account_balance_get_success.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_nonweb_get_account_balance_invalid_router_number_nondigit(mock_supabase_account_balance_get_success):
+    # Arrange
+    valid_account_number = "111111111111"
+    invalid_routing_number = "ababababa"
+    # Act
+    balance = await AccountService.get_account_balance_internal(valid_account_number, invalid_routing_number)
+    # Assert
+    assert balance == None
+    mock_supabase_account_balance_get_success.assert_not_called()
+
 
 # Helper Tests
 ## Generate Account Numbers

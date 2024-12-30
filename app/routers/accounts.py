@@ -11,4 +11,4 @@ async def create_account(account: AccountCreate):
 
 @router.get("/get-balance/{account_number}", response_model=float)
 async def get_balance(account_number: str, routing_number: str):
-    return await AccountService.get_account_balance(account_number, routing_number)
+    return await AccountService.get_account_balance_web(account_number, routing_number)
