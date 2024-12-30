@@ -29,13 +29,3 @@ MOCK_TRANSFER_SUCCESS = {
     "transfer_amount": "10",
     "status": "Success"
 }
-
-MOCK_TRANSFER_FAILED = {
-    "id": 1,
-    "sending_account_number": "111111111111",
-    "sending_routing_number": "999999999",
-    "receiving_account_number": "222222222222",
-    "receiving_routing_number": "777777777",
-    "transfer_amount": "10",
-    "status": "Failed"
-}

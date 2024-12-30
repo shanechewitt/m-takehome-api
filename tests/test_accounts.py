@@ -150,7 +150,7 @@ def test_web_get_account_balance_error_database(client, mock_supabase_account_ba
 # Update balance
 # Success Case
 @pytest.mark.asyncio
-async def test_update_balance_success(client, mock_supabase_account_balance_update_success):
+async def test_update_balance_success(mock_supabase_account_balance_update_success):
     # Arrange
     valid_account_number = "111111111111"
     valid_routing_number = "999999999"
@@ -168,7 +168,7 @@ async def test_update_balance_success(client, mock_supabase_account_balance_upda
 
 # Error Case
 @pytest.mark.asyncio
-async def test_update_balance_error(client, mock_supabase_account_balance_update_error):
+async def test_update_balance_error(mock_supabase_account_balance_update_error):
     # Arrange
     valid_account_number = "111111111111"
     valid_routing_number = "999999999"
@@ -241,7 +241,7 @@ async def test_nonweb_get_account_balance_invalid_router_number_nondigit(mock_su
 
 # Helper Tests
 ## Generate Account Numbers
-def test_generate_account_numbers(client):
+def test_generate_account_numbers():
     # Arrange
 
     # Act
@@ -251,7 +251,7 @@ def test_generate_account_numbers(client):
     assert len(routing_num) == 9
 
 ## Generate Account Model
-def test_generate_account_model(client):
+def test_generate_account_model():
     # Arrange
     account_create_params = {"customer_id": 1, "name": "Test Account", "initial_amount": 100.00}
     account_create_obj = AccountCreate(**account_create_params)

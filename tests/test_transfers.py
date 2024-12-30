@@ -2,7 +2,6 @@ from app.models.transfer import TransferCreate
 from app.services.transfer_service import TransferService
 from app.services.account_service import AccountService
 from unittest.mock import call, patch
-from .mocks.response_mocks import MOCK_TRANSFER_SUCCESS
 
 # Create Transfer
 ## Success Cases
