@@ -29,4 +29,20 @@ class TransferService:
         except Exception as e:
             transfer.status = "Failed: Unexpected Error"
             raise HTTPException(500, detail=f"Transfer failed: {e}")
+        
+    @staticmethod
+    async def get_transfer_history(account_number: str) -> list:
+        try:
+            if not len(account_number) == 12 or not account_number.isdigit():
+                raise HTTPException(status_code=400, detail="Invalid account number")
+            
+            response = (supabase.table("Transfers")
+                        .select("sending_account_number, receiving_account_number, transfer_amount, status").
+                        or_(f"sending_account_number.eq.{account_number},receiving_account_number.eq.{account_number}")
+                        .execute())
+            return response.data
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Transfer fistory failed: {e}")
 

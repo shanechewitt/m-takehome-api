@@ -74,3 +74,16 @@ def mock_supabase_create_transfer_database_error():
     with patch('app.services.transfer_service.supabase') as mock:
         mock.table.return_value.insert.return_value.execute.side_effect = Exception("Database error")
         yield mock
+
+# Get Transfer List
+@pytest.fixture
+def mock_supabase_get_transfer_list_success():
+    with patch('app.services.transfer_service.supabase') as mock:
+        mock.table.return_value.select.return_value.or_.return_value.execute.return_value.data = MOCK_TRANSFER_HISTORY
+        yield mock
+
+@pytest.fixture
+def mock_supabase_get_transfer_list_database_error():
+    with patch('app.services.transfer_service.supabase') as mock:
+        mock.table.return_value.select.return_value.or_.return_value.execute.side_effect = Exception("Database error")
+        yield mock

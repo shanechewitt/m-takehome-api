@@ -8,11 +8,8 @@ class TransferCreate(BaseModel):
     transfer_amount: float
     status: str = "Pending"
 
-class Transfer(BaseModel):
-    id: str
+class TransferListItem(BaseModel):
     sending_account_number: str
-    sending_routing_number: str
     receiving_account_number: str
-    receiving_routing_number: str
     transfer_amount: float
     status: str

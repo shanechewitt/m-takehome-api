@@ -1,7 +1,5 @@
-from app.models.transfer import TransferCreate
-from app.services.transfer_service import TransferService
-from app.services.account_service import AccountService
 from unittest.mock import call, patch
+from .mocks.response_mocks import MOCK_TRANSFER_HISTORY
 
 # Create Transfer
 ## Success Cases
@@ -112,3 +110,36 @@ def test_create_transfer_database_error(client, mock_supabase_create_transfer_da
             # Assert
             assert response.status_code == 500
             assert response.json()["detail"] == "Transfer failed: Database error"
+
+
+# Get Transfer History
+## Success
+def test_get_transfer_history_success(client, mock_supabase_get_transfer_list_success):
+    # Arrange
+    account_number = "111111111111"
+    # Act
+    response = client.get(f"/api/transfers/transfer-history/{account_number}")
+
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == MOCK_TRANSFER_HISTORY
+
+    table = mock_supabase_get_transfer_list_success.table
+    table.assert_called_once_with("Transfers")
+    table.return_value.select.assert_called_once_with("sending_account_number, receiving_account_number, transfer_amount, status")
+    table.return_value.select.return_value.or_.assert_called_once_with(f"sending_account_number.eq.{account_number},receiving_account_number.eq.{account_number}")
+
+## Database Error
+def test_get_transfer_history_database_error(client, mock_supabase_get_transfer_list_database_error):
+    # Arrange
+    account_number = "111111111111"
+    # Act
+    response = client.get(f"/api/transfers/transfer-history/{account_number}")
+    # Assert
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Transfer fistory failed: Database error"
+
+    table = mock_supabase_get_transfer_list_database_error.table
+    table.assert_called_once_with("Transfers")
+    table.return_value.select.assert_called_once_with("sending_account_number, receiving_account_number, transfer_amount, status")
+    table.return_value.select.return_value.or_.assert_called_once_with(f"sending_account_number.eq.{account_number},receiving_account_number.eq.{account_number}")

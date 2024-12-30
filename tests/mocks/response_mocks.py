@@ -29,3 +29,24 @@ MOCK_TRANSFER_SUCCESS = {
     "transfer_amount": "10",
     "status": "Success"
 }
+
+MOCK_TRANSFER_HISTORY = [
+    {
+        "sending_account_number": "111111111111",
+        "receiving_account_number": "222222222222",
+        "transfer_amount": "10.05",
+        "status": "Success"
+    },
+    {
+        "sending_account_number": "333333333333",
+        "receiving_account_number": "111111111111",
+        "transfer_amount": "100.05",
+        "status": "Failed: Insufficient Funds"
+    },
+    {
+        "sending_account_number": "111111111111",
+        "receiving_account_number": "6666666666666",
+        "transfer_amount": "10.05",
+        "status": "Success"
+    },
+]
