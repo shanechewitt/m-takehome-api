@@ -91,7 +91,22 @@ def test_create_transfer_receiver_sender_insufficient_funds(client, mock_supabas
             assert response.status_code == 400
             assert response.json()["detail"] == "Sending account has insufficient funds"
 
-
+def test_create_transfer_amount_negative(client, mock_supabase_create_transfer_success):
+    # Arrange
+    with patch('app.services.account_service.AccountService.get_account_balance_internal', return_value=100.00) as mock_get_balance:
+            with patch('app.services.account_service.AccountService.update_account_balance') as mock_update_balance:
+                negative_transfer_params = {
+                    "sending_account_number": "111111111111",
+                    "sending_routing_number": "999999999",
+                    "receiving_account_number": "222222222222",
+                    "receiving_routing_number": "777777777",
+                    "transfer_amount": -105.00 # Negative transfer
+                }
+                # Act
+                response = client.post("/api/transfers/create", json=negative_transfer_params)
+                # Assert
+                assert response.status_code == 400
+                assert response.json()["detail"] == "Transfer amount must be non-zero and positive"
 
 ## Database Error
 def test_create_transfer_database_error(client, mock_supabase_create_transfer_database_error):

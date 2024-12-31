@@ -17,6 +17,8 @@ class TransferService:
                 transfer.status = "Failed: Insufficient Funds"
                 supabase.table("Transfers").insert(transfer.model_dump()).execute()
                 raise HTTPException(400, detail="Sending account has insufficient funds")
+            if not transfer.transfer_amount > 0:
+                raise HTTPException(400, detail="Transfer amount must be non-zero and positive")
             
             await AccountService.update_account_balance(transfer.sending_account_number, transfer.sending_routing_number, -transfer.transfer_amount)
             await AccountService.update_account_balance(transfer.receiving_account_number, transfer.receiving_routing_number, transfer.transfer_amount)
