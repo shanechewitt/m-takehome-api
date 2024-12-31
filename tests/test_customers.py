@@ -1,4 +1,5 @@
 # Success Cases
+from .mocks.response_mocks import MOCK_CUSTOMER_LIST
 
 def test_create_customer_success(client, mock_supabase_customer_success):
     # Arrange
@@ -51,4 +52,24 @@ def test_create_customer_error_database(client, mock_supabase_customer_error):
     
     mock_supabase_customer_error.table.assert_called_once_with("Customers")
     mock_supabase_customer_error.table().insert.assert_called_once_with(valid_params)
+
+# Customer List Get
+def test_customer_list_get_success(client, mock_supabase_customer_list_success):
+    # Arrange
+    # Act
+    response = client.get("/api/customers/customer-list")
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == MOCK_CUSTOMER_LIST
+
+    mock_supabase_customer_list_success.table.assert_called_once_with("Customers")
+    mock_supabase_customer_list_success.table.return_value.select.assert_called_once_with("id, name")
+
+def test_customer_list_get_database_error(client, mock_supabase_customer_list_error):
+    # Arrange
+    # Act
+    response = client.get("/api/customers/customer-list")
+    # Assert
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Customer List GET failed: Database error"
 

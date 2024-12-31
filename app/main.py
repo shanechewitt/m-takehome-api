@@ -13,8 +13,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(accounts.router, prefix="/api/accounts", tags=["accounts"])
 app.include_router(customers.router, prefix="/api/customers", tags=["customers"])
+app.include_router(accounts.router, prefix="/api/accounts", tags=["accounts"])
 app.include_router(transfers.router, prefix="/api/transfers", tags=["transfers"])
 
 @app.get("/")

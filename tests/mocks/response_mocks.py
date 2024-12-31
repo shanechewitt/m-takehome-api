@@ -3,6 +3,21 @@ MOCK_CUSTOMER = {
     "name": "Test Customer"
 }
 
+MOCK_CUSTOMER_LIST = [
+    {
+        "id": 1,
+        "name": "Test Customer 1"
+    },
+    {
+        "id": 2,
+        "name": "Test Customer 2"
+    },
+    {
+        "id": 3,
+        "name": "Test Customer 3"
+    }
+]
+
 MOCK_ACCOUNT = {
     "id": 1,
     "name": "Test Account",
