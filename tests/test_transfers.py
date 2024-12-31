@@ -134,7 +134,6 @@ def test_get_transfer_history_success(client, mock_supabase_get_transfer_list_su
     account_number = "111111111111"
     # Act
     response = client.get(f"/api/transfers/transfer-history/{account_number}")
-
     # Assert
     assert response.status_code == 200
     assert response.json() == MOCK_TRANSFER_HISTORY
@@ -143,6 +142,18 @@ def test_get_transfer_history_success(client, mock_supabase_get_transfer_list_su
     table.assert_called_once_with("Transfers")
     table.return_value.select.assert_called_once_with("sending_account_number, receiving_account_number, transfer_amount, status")
     table.return_value.select.return_value.or_.assert_called_once_with(f"sending_account_number.eq.{account_number},receiving_account_number.eq.{account_number}")
+
+## Edge Cases
+def test_get_transfer_history_invalid_account_number(client, mock_supabase_get_transfer_list_success):
+    # Arrange
+    account_number = "11111"
+    # Act
+    response = client.get(f"/api/transfers/transfer-history/{account_number}")
+    # Assert
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid account number"
+
+    mock_supabase_get_transfer_list_success.table.assert_not_called()
 
 ## Database Error
 def test_get_transfer_history_database_error(client, mock_supabase_get_transfer_list_database_error):
