@@ -20,6 +20,6 @@ class CustomerService:
     async def customer_list_get():
         try:
             response = supabase.table('Customers').select("id, name").execute()
-            return response.data[0] if response.data else None
+            return response.data if response.data else None
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Customer List GET failed: {e}")

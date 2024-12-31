@@ -19,7 +19,7 @@ def mock_supabase_customer_error():
 @pytest.fixture
 def mock_supabase_customer_list_success():
     with patch('app.services.customer_service.supabase') as mock:
-        mock.table.return_value.select.return_value.execute.return_value.data = [MOCK_CUSTOMER_LIST]
+        mock.table.return_value.select.return_value.execute.return_value.data = MOCK_CUSTOMER_LIST
         yield mock
 
 @pytest.fixture

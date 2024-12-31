@@ -73,3 +73,6 @@ def test_customer_list_get_database_error(client, mock_supabase_customer_list_er
     assert response.status_code == 500
     assert response.json()["detail"] == "Customer List GET failed: Database error"
 
+    mock_supabase_customer_list_error.table.assert_called_once_with("Customers")
+    mock_supabase_customer_list_error.table.return_value.select.assert_called_once_with("id, name")
+
