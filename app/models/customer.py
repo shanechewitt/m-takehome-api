@@ -6,3 +6,6 @@ class CustomerCreate(BaseModel):
 class Customer(BaseModel):
     id: int
     name: str
+
+class CustomerInfo(BaseModel):
+    name: str

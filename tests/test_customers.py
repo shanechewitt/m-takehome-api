@@ -76,3 +76,33 @@ def test_customer_list_get_database_error(client, mock_supabase_customer_list_er
     mock_supabase_customer_list_error.table.assert_called_once_with("Customers")
     mock_supabase_customer_list_error.table.return_value.select.assert_called_once_with("id, name")
 
+
+# Customer Info Get
+## Success
+def test_customer_info_get_success(client, mock_supabase_customer_info_success):
+    # Arrange
+    customer_id = 1
+    # Act
+    response = client.get(f"/api/customers/info/{customer_id}")
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == { "name": "Test Customer" }
+
+    mock_supabase_customer_info_success.table.assert_called_once_with("Customers")
+    mock_supabase_customer_info_success.table.return_value.select.assert_called_once_with("name")
+    mock_supabase_customer_info_success.table.return_value.select.return_value.eq.assert_called_once_with("id", customer_id)
+
+## Database Error
+def test_customer_info_get_database_error(client, mock_supabase_customer_info_database_error):
+    # Arrange
+    customer_id = 1
+    # Act
+    response = client.get(f"/api/customers/info/{customer_id}")
+    # Assert
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Customer info GET failed: Database error"
+
+    mock_supabase_customer_info_database_error.table.assert_called_once_with("Customers")
+    mock_supabase_customer_info_database_error.table.return_value.select.assert_called_once_with("name")
+    mock_supabase_customer_info_database_error.table.return_value.select.return_value.eq.assert_called_once_with("id", customer_id)
+

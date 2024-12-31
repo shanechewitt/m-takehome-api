@@ -23,3 +23,11 @@ class CustomerService:
             return response.data if response.data else None
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Customer List GET failed: {e}")
+        
+    @staticmethod
+    async def customer_info_get(customer_id: int):
+        try:
+            response = supabase.table("Customers").select("name").eq("id", customer_id).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Customer info GET failed: {e}")

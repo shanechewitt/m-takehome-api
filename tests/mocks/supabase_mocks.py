@@ -27,6 +27,19 @@ def mock_supabase_customer_list_error():
     with patch('app.services.customer_service.supabase') as mock:
         mock.table.return_value.select.return_value.execute.side_effect = Exception("Database error")
         yield mock
+
+# GET Customer Info
+@pytest.fixture
+def mock_supabase_customer_info_success():
+    with patch('app.services.customer_service.supabase') as mock:
+        mock.table.return_value.select.return_value.eq.return_value.execute.return_value.data = [{ "name": "Test Customer" }]
+        yield mock
+
+@pytest.fixture
+def mock_supabase_customer_info_database_error():
+    with patch('app.services.customer_service.supabase') as mock:
+        mock.table.return_value.select.return_value.eq.return_value.execute.side_effect = Exception("Database error")
+        yield mock
         
 # CREATE Account
 @pytest.fixture
