@@ -13,4 +13,9 @@ class Account(BaseModel):
     account_number: str
     routing_number: str
 
+class AccountInfo(BaseModel):
+    id: int
+    name: str
+    account_number: str
+    routing_number: str
 

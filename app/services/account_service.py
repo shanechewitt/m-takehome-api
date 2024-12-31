@@ -19,6 +19,14 @@ class AccountService:
             raise
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Bank account creation failed: {e}")
+        
+    @staticmethod
+    async def get_accounts_list(customer_id: int):
+        try:
+            response = supabase.table("BankAccounts").select("id, name, account_number, routing_number").eq("customer_id", customer_id).execute()
+            return response.data
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Get account list failed: {e}")
 
     @staticmethod
     async def get_account_balance_web(account_number: str, routing_number: str) -> float:

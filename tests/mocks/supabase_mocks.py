@@ -41,6 +41,19 @@ def mock_supabase_account_error():
         mock.table.return_value.insert.return_value.execute.side_effect = Exception("Database error")
         yield mock
 
+# GET Accounts List
+@pytest.fixture
+def mock_supabase_account_list_get_success():
+    with patch('app.services.account_service.supabase') as mock:
+        mock.table.return_value.select.return_value.eq.return_value.execute.return_value.data = MOCK_ACCOUNT_LIST
+        yield mock
+
+@pytest.fixture
+def mock_supabase_account_list_get_database_error():
+    with patch('app.services.account_service.supabase') as mock:
+        mock.table.return_value.select.return_value.eq.return_value.execute.side_effect = Exception("Database error")
+        yield mock
+
 # GET Account Balance
 @pytest.fixture
 def mock_supabase_account_balance_get_success():

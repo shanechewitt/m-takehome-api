@@ -27,6 +27,33 @@ MOCK_ACCOUNT = {
     "routing_number": "999999999"
 }
 
+MOCK_ACCOUNT_LIST = [
+    {
+        "id": 1,
+        "name": "Test Account",
+        "customer_id": 1,
+        "balance": 100.00,
+        "account_number": "111111111111",
+        "routing_number": "999999999"
+    },
+    {
+        "id": 2,
+        "name": "Test Account 2",
+        "customer_id": 1,
+        "balance": 1000.00,
+        "account_number": "222222222222",
+        "routing_number": "888888888"
+    },
+    {
+        "id": 3,
+        "name": "Test Account 3",
+        "customer_id": 1,
+        "balance": 1.00,
+        "account_number": "333333333333",
+        "routing_number": "777777777"
+    }
+]
+
 MOCK_ACCOUNT_BALANCE = {
     "balance": 100.00
 }

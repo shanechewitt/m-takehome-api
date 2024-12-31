@@ -65,7 +65,7 @@ def test_create_account_error_negative_amount(client):
     assert response_error["detail"] == "Bank account balance cannot be negative"
 
 ## Database Errors
-def test_create_customer_error_database(client, mock_supabase_account_error):
+def test_create_account_error_database(client, mock_supabase_account_error):
     # Arrange
     valid_params = {"customer_id": 1, "name": "Test Account", "initial_amount": 100.00}
     with patch('app.services.account_service.AccountService._create_account_model') as mock_create_acc_model:
@@ -87,6 +87,35 @@ def test_create_customer_error_database(client, mock_supabase_account_error):
 
         mock_supabase_account_error.table.assert_called_once_with("BankAccounts")
         mock_supabase_account_error.table().insert.assert_called_once_with(acc_model_create_to_return)
+
+# Get Accounts List
+## Success
+def test_get_account_list_success(client, mock_supabase_account_list_get_success):
+    # Arrange
+    customer_id = 1
+    # Act
+    response = client.get(f"/api/accounts/accounts-list/{customer_id}")
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == MOCK_ACCOUNT_LIST
+
+    mock_supabase_account_list_get_success.table.assert_called_once_with("BankAccounts")
+    mock_supabase_account_list_get_success.table.return_value.select.assert_called_once_with("id, name, account_number, routing_number")
+    mock_supabase_account_list_get_success.table.return_value.select.return_value.eq.assert_called_once_with("customer_id", customer_id)
+
+## Database Error
+def test_get_account_list_database_error(client, mock_supabase_account_list_get_database_error):
+    # Arrange
+    customer_id = 1
+    # Act
+    response = client.get(f"/api/accounts/accounts-list/{customer_id}")
+    # Assert
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Get account list failed: Database error"
+
+    mock_supabase_account_list_get_database_error.table.assert_called_once_with("BankAccounts")
+    mock_supabase_account_list_get_database_error.table.return_value.select.assert_called_once_with("id, name, account_number, routing_number")
+    mock_supabase_account_list_get_database_error.table.return_value.select.return_value.eq.assert_called_once_with("customer_id", customer_id)
 
 # Get balance
 ## Success Cases
